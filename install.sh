@@ -27,7 +27,7 @@
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
-REPO="https://github.com/promptics/promptics-agentskills"
+REPO="https://github.com/promptics/agentskills"
 REF="${1:-main}"
 TARGET=".agents/skills"
 
@@ -37,10 +37,10 @@ rm -rf "$TARGET"
 mkdir -p "$TARGET"
 
 curl -fsSL "$REPO/archive/refs/heads/$REF.tar.gz" \
-  | tar xz --strip-components=2 -C "$TARGET" "promptics-agentskills-$REF/skills/" \
+  | tar xz --strip-components=2 -C "$TARGET" "agentskills-$REF/skills/" \
   2>/dev/null \
 || curl -fsSL "$REPO/archive/refs/tags/$REF.tar.gz" \
-  | tar xz --strip-components=2 -C "$TARGET" "promptics-agentskills-$REF/skills/"
+  | tar xz --strip-components=2 -C "$TARGET" "agentskills-$REF/skills/"
 
 echo ""
 echo "Done. Skills installed into $TARGET/"

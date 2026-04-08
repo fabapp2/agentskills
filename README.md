@@ -22,13 +22,13 @@ when the skill is invoked. This table is auto-generated — see
 Run this from your project root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/promptics/promptics-agentskills/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/promptics/agentskills/main/install.sh | bash
 ```
 
 Pin to a specific release:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/promptics/promptics-agentskills/main/install.sh | bash -s v1.0.0
+curl -fsSL https://raw.githubusercontent.com/promptics/agentskills/main/install.sh | bash -s v1.0.0
 ```
 
 Then commit:
@@ -45,11 +45,11 @@ Subtree keeps the skills as normal tracked files — no submodule init dance, an
 ```bash
 # First import
 git subtree add --prefix=.agents/skills \
-  https://github.com/promptics/promptics-agentskills.git main --squash
+  https://github.com/promptics/agentskills.git main --squash
 
 # Update later
 git subtree pull --prefix=.agents/skills \
-  https://github.com/promptics/promptics-agentskills.git main --squash
+  https://github.com/promptics/agentskills.git main --squash
 ```
 
 Tip: add a Makefile target so the team doesn't have to remember the command:
@@ -58,7 +58,7 @@ Tip: add a Makefile target so the team doesn't have to remember the command:
 .PHONY: update-skills
 update-skills:
 	git subtree pull --prefix=.agents/skills \
-	  https://github.com/promptics/promptics-agentskills.git main --squash
+	  https://github.com/promptics/agentskills.git main --squash
 ```
 
 ## Updating
