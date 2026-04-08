@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Pre-commit hook: regenerate the skills table in README.md if any SKILL.md changed.
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# Check if any SKILL.md is staged
+if git diff --cached --name-only | grep -q 'skills/.*/SKILL\.md'; then
+  bash "$REPO_ROOT/scripts/update-skill-table.sh"
+  git add "$REPO_ROOT/README.md"
+fi
