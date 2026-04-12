@@ -25,21 +25,28 @@ evidence. Do **not** skip a check because you assume it will pass — verify it.
 After completing all checks, generate an **OSS Readiness Report** using the
 format defined in the [Report Format](#report-format) section below.
 
-### Design principle: two-tier tool checks
+### Design principle: three-tier tool checks
 
-Many checks follow a two-tier pattern:
+Many checks follow a three-tier pattern:
 
 1. **Tier 1 — Is an appropriate tool configured?**
    Look for config files, CI steps, or build-plugin declarations that show the
    project has automated enforcement. If no tool is configured, that is itself
    a finding (typically WARNING).
 
-2. **Tier 2 — Does the tool pass?**
-   If a tool *is* configured, run it and verify it reports no violations.
+2. **Tier 2 — Is the tool installed? If not, offer to install it.**
+   Check whether the tool binary is available on `PATH` (e.g. `command -v gitleaks`).
+   If it is **not** installed, **offer to install it** using the install commands
+   from the [Installable Tools Reference](#installable-tools-reference) table.
+   Present the user with the choice to install or skip. If the user accepts,
+   run the install command and verify it succeeded before proceeding.
+
+3. **Tier 3 — Does the tool pass?**
+   Run the tool and verify it reports no violations.
    Violations are WARN or FAIL depending on severity.
 
 This ensures the skill works on any project — it never assumes a tool is
-installed, but rewards projects that have them.
+installed, but actively helps the user get the right tools in place.
 
 ### Well-known tools (reference, not requirements)
 
@@ -50,6 +57,27 @@ installed, but rewards projects that have them.
 | Vulnerability scanning | `trivy`, OWASP `dependency-check-maven`, `npm audit`, `pip-audit`, Snyk, Dependabot |
 | Dependency licenses | `trivy fs --scanners license`, `license-eye dep check`, `license-checker` (npm), `pip-licenses` |
 | Static analysis | Checkstyle, SpotBugs, PMD, Error Prone (Java); ESLint, Biome (JS/TS); Ruff, Pylint, mypy (Python) |
+
+### Installable tools reference
+
+When a tool is not installed, use the table below to offer installation.
+Detect the OS first (`uname -s`) and pick the appropriate command. If
+multiple install methods exist, prefer Homebrew on macOS and the native
+package manager on Linux. Always ask the user before running install commands.
+
+| Tool | macOS (`brew`) | Linux (`apt` / other) | Other |
+|---|---|---|---|
+| `gitleaks` | `brew install gitleaks` | `apt-get install -y gitleaks` or download from [GitHub releases](https://github.com/gitleaks/gitleaks/releases) | `go install github.com/gitleaks/gitleaks/v8@latest` |
+| `trivy` | `brew install trivy` | `apt-get install -y trivy` (aquasecurity repo) | See [trivy docs](https://aquasecurity.github.io/trivy/latest/getting-started/installation/) |
+| `license-eye` | `brew install skywalking-eyes` | — | `go install github.com/apache/skywalking-eyes/cmd/license-eye@latest` |
+| `detect-secrets` | `pip install detect-secrets` | `pip install detect-secrets` | — |
+| `reuse` | `pip install reuse` | `pip install reuse` | — |
+| `pip-licenses` | `pip install pip-licenses` | `pip install pip-licenses` | — |
+| `pip-audit` | `pip install pip-audit` | `pip install pip-audit` | — |
+| `license-checker` | `npm install -g license-checker` | `npm install -g license-checker` | — |
+| `eslint` | `npm install -g eslint` | `npm install -g eslint` | — |
+| `ruff` | `brew install ruff` | `pip install ruff` | — |
+| `mypy` | `pip install mypy` | `pip install mypy` | — |
 
 ---
 
@@ -99,8 +127,10 @@ configured — consider license-eye, REUSE, or license-maven-plugin."
 
 If the tool reports violations → **WARN** with the list of files.
 If the tool passes → **PASS**.
-If the tool is not installed → report the config as PASS for Tier 1, note that
-the tool binary was not available to run Tier 2, and suggest installing it.
+If the tool is not installed → offer to install it (see
+[Installable Tools Reference](#installable-tools-reference)). If the user
+accepts, install and run it. If declined, report Tier 1 as PASS and note
+Tier 3 was skipped.
 
 **1.3 Dependency license compatibility** *(two-tier)*
 Check whether the project has automated dependency-license scanning configured:
@@ -144,7 +174,9 @@ consider gitleaks, detect-secrets, or trivy."
 - `trivy fs --scanners secret TARGET`
 
 Findings → **FAIL**. Clean → **PASS**.
-If tool binary not installed → note in report, suggest installing.
+If the tool binary is not installed → offer to install it (see
+[Installable Tools Reference](#installable-tools-reference)). If the user
+accepts, install and run it. If declined, note in report as skipped.
 
 **2.2 .env excluded from version control**
 Check whether `.env` appears in `.gitignore`:
@@ -368,7 +400,10 @@ For each item:
 Rules:
 - One problem, one fix per proposal.
 - If a fix requires information you don't have, ask before presenting choices.
-- If a fix is outside the codebase (e.g. "install gitleaks"), state it as a
-  manual step and move on.
+- **Tool installation:** If a fix involves installing a CLI tool (e.g.
+  gitleaks, trivy, license-eye), look up the install command from the
+  [Installable Tools Reference](#installable-tools-reference) and offer to
+  run it. After a successful install, immediately run the tool's check and
+  report the result. If the user declines installation, note it as skipped.
 - After all items are addressed, give a one-sentence summary of what was fixed
   and what remains.
