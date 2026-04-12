@@ -1,0 +1,13 @@
+{
+  "name": "bugfix",
+  "description": "Fix bugs using any connected issue tracking system",
+  "placeholders": {},
+  "compatible_issue_trackers": [
+    "GitHub",
+    "GitLab",
+    "Jira",
+    "Azure DevOps",
+    "Linear",
+    "Shortcut"
+  ]
+}

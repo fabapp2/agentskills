@@ -1,6 +1,6 @@
 ---
 name: bugfix
-description: Fix a bug in the code.
+description: Fix a bug in the code using available issue tracking tools.
 ---
 
 Fix the bug described in:
@@ -10,7 +10,7 @@ $ARGUMENTS
 ```
 
 `$ARGUMENTS` can be:
-- A reference to an existing issue (e.g. a GitHub issue number or URL).
+- An issue reference (ID, number, or URL) from any connected issue tracker.
 - A free-text bug description provided by the user.
 - Empty — in which case, ask the user to describe the bug.
 
@@ -18,7 +18,7 @@ $ARGUMENTS
 
 ## Instructions
 
-Work through every phase below **in order**. Do not skip phases. Track progress by posting comments on the issue after each significant step.
+Work through every phase below **in order**. Do not skip phases. Track progress by updating the issue after each significant step using available MCP tools (e.g., `GitHub:add_issue_comment`, `Jira:add_comment`, etc.).
 
 **Clarifying questions:** At any point during any phase, if information is missing, ambiguous, or you are unsure about the correct approach, **stop and ask the user** before proceeding. Do not guess or assume. It is always better to ask than to make a wrong fix.
 
@@ -26,11 +26,11 @@ Work through every phase below **in order**. Do not skip phases. Track progress 
 
 ### Phase 0: Ensure an Issue Exists
 
-1. **If `$ARGUMENTS` is an issue reference** (number or URL) — fetch it from the issue tracker and proceed to Phase 1.
+1. **If `$ARGUMENTS` is an issue reference** (ID, number, or URL) — fetch it using the appropriate MCP tool for your connected issue tracker (e.g., `GitHub:get_issue`, `Jira:get_issue`, etc.) and proceed to Phase 1.
 2. **If `$ARGUMENTS` is a free-text description or empty** — gather enough information to create a well-formed bug report:
    - Ask the user for: a short summary, expected behaviour, actual behaviour, and reproduction steps.
    - Keep asking follow-up questions until you have a clear, actionable description. Do not create a vague issue.
-3. **Create the issue** in the issue tracker (e.g. GitHub Issues) with a descriptive title and a body containing:
+3. **Create the issue** using the appropriate MCP tool for your issue tracker with a descriptive title and body containing:
    - **Description** of the bug
    - **Expected behaviour**
    - **Actual behaviour**
@@ -42,14 +42,14 @@ Work through every phase below **in order**. Do not skip phases. Track progress 
 
 ### Phase 1: Understand the Bug
 
-1. **Fetch the issue** from the issue tracker (if not already loaded from Phase 0). Read the title, description, labels, and all existing comments.
-2. **Clarify ambiguities** — if the bug description is incomplete (no reproduction steps, no expected vs. actual behaviour, no environment info), ask the user or post a comment on the issue requesting the missing details. Do not proceed until you have a clear understanding of:
+1. **Fetch the issue** from the issue tracker using the appropriate MCP tool (e.g., `GitHub:get_issue`, `Jira:get_issue`, etc.) if not already loaded from Phase 0. Read the title, description, labels, and all existing comments.
+2. **Clarify ambiguities** — if the bug description is incomplete (no reproduction steps, no expected vs. actual behaviour, no environment info), ask the user or add a comment to the issue requesting the missing details. Do not proceed until you have a clear understanding of:
    - What the expected behaviour is
    - What the actual (broken) behaviour is
    - How to reproduce it (steps, input data, environment)
 3. **Research the codebase** — use search tools (grep, code search, symbol info) to locate the relevant code paths. Trace the execution flow from the entry point to the point of failure.
 4. **Identify the root cause** — determine *why* the bug occurs, not just *where*. Prefer fixing the root cause upstream over adding downstream workarounds or fallbacks that introduce additional code paths.
-5. **Post findings** as a comment on the issue summarising:
+5. **Post findings** as a comment/update on the issue summarising:
    - Affected files and lines
    - Root cause explanation
    - Planned fix approach
@@ -66,7 +66,7 @@ Work through every phase below **in order**. Do not skip phases. Track progress 
 3. **Add inline documentation** — include a Javadoc / docstring on the test method describing the intent: what bug it guards against and how it reproduces it.
 4. **Run the test** to confirm it fails with the expected symptom.
 5. **Commit and push** the failing test on a feature branch (e.g. `fix/<issue-id>-<short-description>`). This anchors the reproduction and makes the fix reviewable.
-6. **Post a comment** on the issue noting the test was added and linking the commit.
+6. **Update the issue** using the appropriate MCP tool (e.g., `GitHub:add_issue_comment`, `Jira:add_comment`, etc.) noting the test was added and linking the commit.
 
 ---
 
@@ -87,15 +87,15 @@ Work through every phase below **in order**. Do not skip phases. Track progress 
 
 ---
 
-### Phase 5: Commit, Push, and PR
+### Phase 5: Commit, Push, and Merge Request
 
 1. **Commit** the fix with a clear message referencing the issue (e.g. `Fix #<issue-id>: <short summary>`).
 2. **Push** the branch.
-3. **Open a Pull Request** targeting the main branch. In the PR description include:
+3. **Open a Pull/Merge Request** using the appropriate MCP tool (e.g., `GitHub:create_pull_request`, `GitLab:create_merge_request`, etc.) targeting the main branch. In the description include:
    - A summary of the root cause
    - What the fix changes
    - Reference to the issue (e.g. `Closes #<issue-id>`)
-4. **Post a final comment** on the issue linking the PR and summarising the fix.
+4. **Update the issue** using the appropriate MCP tool linking the PR/MR and summarising the fix.
 
 ---
 
@@ -105,5 +105,5 @@ Work through every phase below **in order**. Do not skip phases. Track progress 
 - **Minimal changes** — keep the diff small and focused. One bug, one fix.
 - **Test first** — the test must exist and fail before the fix is applied.
 - **Keep the build green** — all existing tests must continue to pass after the fix.
-- **Communicate progress** — post comments on the issue at each phase transition so stakeholders can follow along.
+- **Communicate progress** — update the issue at each phase transition using available MCP tools so stakeholders can follow along.
 - **Ask, don't assume** — whenever you are uncertain about expected behaviour, scope of the fix, or any technical detail, ask the user for clarification before continuing.
