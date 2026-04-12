@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright 2025 promptLM
+# Copyright $COPYRIGHT_YEAR $COPYRIGHT_HOLDER
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ Usage:
   verify-test.sh --build-tool <maven|gradle> --scope <module|class> --selector <value> [--lint-path <path>] [--install-missing]
 
 Examples:
-  verify-test.sh --build-tool maven --scope module --selector components/promptlm-web-api
+  verify-test.sh --build-tool maven --scope module --selector components/example-web-api
   verify-test.sh --build-tool maven --scope class --selector PromptStoreControllerWebMvcTest
   verify-test.sh --build-tool gradle --scope class --selector com.example.UserControllerTest
 EOF
