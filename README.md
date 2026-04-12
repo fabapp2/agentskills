@@ -76,6 +76,13 @@ These skills work with any IDE agent that reads `.agents/skills/` directories:
 - **Codex** — supports the `.agents/skills/` convention
 - **Other agents** — any tool that can read Markdown skill files
 
+## Related Resources
+
+- [agentskills.io](https://agentskills.io/) — The official Agent Skills format documentation
+- [agentskills.so](https://agentskills.so/) — Community platform for Agent Skills
+- [agentskillsdb.com](https://www.agentskillsdb.com/) — Database of available Agent Skills
+- [Anthropic Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) — Original spec and announcement from Anthropic
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add or improve skills, and
