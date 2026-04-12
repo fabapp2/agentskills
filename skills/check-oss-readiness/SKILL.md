@@ -8,7 +8,7 @@ Check open-source readiness for:
 $ARGUMENTS
 ```
 
-If `$ARGUMENTS` is empty, check the whole project. Otherwise, treat `$ARGUMENTS` as a module path relative to the project root (e.g. `components/promptlm-domain`).
+If `$ARGUMENTS` is empty, check the whole project. Otherwise, treat `$ARGUMENTS` as a module path relative to the project root (e.g. `components/example-domain`).
 
 Set `TARGET` to the resolved absolute path: `$ARGUMENTS` if provided, otherwise the project root.
 Set `PROJECT_ROOT` to the git repository root (`git rev-parse --show-toplevel`).
