@@ -1,5 +1,5 @@
 ---
-author: promptics.io
+author: $SKILL_AUTHOR
 name: spring-boot-test-authoring
 description: Write, review, and refactor high-quality Spring Boot 4 tests with strict conventions. Use when choosing between Spring test slices and full-context tests, creating Testcontainers-backed integration tests with @ServiceConnection, writing Spring Modulith module tests, enforcing JUnit 6 naming/assertion style, or adding deterministic test quality gates.
 ---

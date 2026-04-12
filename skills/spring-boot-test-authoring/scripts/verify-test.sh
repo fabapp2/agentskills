@@ -25,8 +25,8 @@ Usage:
   verify-test.sh --build-tool <maven|gradle> --scope <module|class> --selector <value> [--lint-path <path>] [--install-missing]
 
 Examples:
-  verify-test.sh --build-tool maven --scope module --selector backend/api-module
-  verify-test.sh --build-tool maven --scope class --selector PromptStoreControllerWebMvcTest
+  verify-test.sh --build-tool maven --scope module --selector path/to/module
+  verify-test.sh --build-tool maven --scope class --selector UserControllerWebMvcTest
   verify-test.sh --build-tool gradle --scope class --selector com.example.UserControllerTest
 EOF
 }
