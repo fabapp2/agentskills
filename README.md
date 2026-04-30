@@ -9,8 +9,9 @@ bugs, checking OSS readiness, and more.
 <!-- SKILL_TABLE_START -->
 | Skill | Description |
 |---|---|
-| [bugfix](skills/bugfix/) | Fix a bug in the code. |
+| [bugfix](skills/bugfix/) | Fix a bug in the code using available issue tracking tools. |
 | [check-oss-readiness](skills/check-oss-readiness/) | Check module or project for open source readiness and offers fixes to user (3 supporting files) |
+| [spring-boot-test-authoring](skills/spring-boot-test-authoring/) | Write, review, and refactor high-quality Spring Boot 4 tests with strict conventions. Use when choosing between Spring test slices and full-context tests, creating Testcontainers-backed integration tests with @ServiceConnection, writing Spring Modulith module tests, enforcing JUnit 6 naming/assertion style, or adding deterministic test quality gates. |
 <!-- SKILL_TABLE_END -->
 
 Each skill lives in its own directory under `skills/`. The agent reads `SKILL.md`
