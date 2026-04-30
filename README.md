@@ -78,6 +78,7 @@ These skills work with any IDE agent that reads `.agents/skills/` directories:
 
 ## Related Resources
 
+- [The complete guide to build Agentskills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
 - [agentskills.io](https://agentskills.io/) — The official Agent Skills format documentation
 - [agentskills.so](https://agentskills.so/) — Community platform for Agent Skills
 - [agentskillsdb.com](https://www.agentskillsdb.com/) — Database of available Agent Skills
