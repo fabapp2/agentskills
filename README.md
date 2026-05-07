@@ -11,12 +11,22 @@ bugs, checking OSS readiness, and more.
 |---|---|
 | [bugfix](skills/bugfix/) | Fix a bug in the code using available issue tracking tools. |
 | [check-oss-readiness](skills/check-oss-readiness/) | Check module or project for open source readiness and offers fixes to user (3 supporting files) |
+| [research-methodology](skills/research-methodology/) | Print the canonical orchestrated-research methodology — the rules, prompt template, deliverable shape, and failure modes that govern research-programme and research-topic. Read once per project. |
+| [research-programme](skills/research-programme/) | Bootstrap a verified multi-topic research programme — orchestrated sub-agents producing a pre-implementation design dossier. Calls research-topic for each topic; rules in research-methodology. |
+| [research-topic](skills/research-topic/) | Dispatch one research topic with the hardened sub-agent template (verification clause, anti-stall, injection-defence). Run a critic pass, distil into findings/NN-<topic>.md, archive the transcript, update the working set. Called by research-programme; can also be used standalone. |
 | [spring-boot-test-authoring](skills/spring-boot-test-authoring/) | Write, review, and refactor high-quality Spring Boot 4 tests with strict conventions. Use when choosing between Spring test slices and full-context tests, creating Testcontainers-backed integration tests with @ServiceConnection, writing Spring Modulith module tests, enforcing JUnit 6 naming/assertion style, or adding deterministic test quality gates. |
 <!-- SKILL_TABLE_END -->
 
 Each skill lives in its own directory under `skills/`. The agent reads `SKILL.md`
 when the skill is invoked. This table is auto-generated — see
 [scripts/update-skill-table.sh](scripts/update-skill-table.sh).
+
+### Skill bundles
+
+Some skills work as coordinated sets. Use them together for the listed workflow.
+
+- **Research bundle** — `research-methodology` + `research-programme` + `research-topic`.
+  Orchestrated multi-topic research producing a pre-implementation design dossier with a verified sub-agent harness, working-set / archive separation, and a mandatory critic pass per topic. Read `research-methodology` once per project; `research-programme` bootstraps a programme and calls `research-topic` per item in the backlog.
 
 ## Quick start (curl)
 
@@ -37,6 +47,8 @@ Then commit:
 ```bash
 git add .agents/skills && git commit -m "Import agent-skills"
 ```
+
+**Bundles install together.** Skills that belong to a coordinated bundle (see [Skill bundles](#skill-bundles)) are installed alongside everything else — `install.sh` is whole-repo, no per-bundle flag needed. After install, all bundle members are present under `.agents/skills/<skill>/`. Read the bundle's anchor skill (e.g. `research-methodology` for the research bundle) first to understand how the members cooperate.
 
 ## Git subtree (recommended for your own repos)
 

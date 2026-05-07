@@ -174,14 +174,35 @@ config_only_mode() {
     fi
 }
 
+# Detect skill bundles among installed skills.
+# A bundle is a coordinated set of skills sharing a common prefix
+# (e.g. research-methodology + research-programme + research-topic).
+# Hardcoded for now — update this function when adding new bundles.
+list_bundles() {
+    local research_present=0
+    for s in research-methodology research-programme research-topic; do
+        [[ -d "$TARGET/$s" ]] && research_present=$((research_present + 1))
+    done
+    if [[ $research_present -ge 2 ]]; then
+        echo ""
+        echo "Skill bundles installed:"
+        echo "  research bundle — research-methodology + research-programme + research-topic"
+        echo "    Orchestrated multi-topic research producing a pre-implementation"
+        echo "    design dossier with a verified sub-agent harness, working-set /"
+        echo "    archive separation, and a mandatory critic pass per topic."
+        echo "    Read research-methodology first."
+    fi
+}
+
 # Main installation flow
 main_install() {
     download_skills
     collect_config
     apply_templates "$TARGET"
-    
+
     echo ""
     log_success "Installation complete!"
+    list_bundles
     echo ""
     echo "Next steps:"
     echo "  git add $TARGET && git commit -m 'Import agent-skills ($REF)'"
