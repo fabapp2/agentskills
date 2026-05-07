@@ -24,41 +24,39 @@ github-issue-delivery/
 
 ## Install for Claude Code
 
-Installation is two steps. **Step 1 is required**; step 2 is optional and only changes the command name from `/github-issue-delivery:deliver-issue` to the bare `/deliver-issue`.
+The wrapper file (`deliver-issue.md`) goes under `.claude/commands/` so Claude Code registers it as a slash command. **Everything else** — `PROCEDURE.md`, `team-roles.md`, `scripts/`, `log-templates/`, etc. — must live **outside** `.claude/commands/`, because Claude Code registers every Markdown file under that tree as a separate command. The wrapper expects the support tree at `.claude/github-issue-delivery/`.
 
-### Step 1 (required) — install the directory
-
-Copy or symlink the entire `github-issue-delivery/` directory into your project's `.claude/commands/`:
+### Install steps
 
 ```bash
-# From the root of the project where you want to use the command:
+# From the root of the project where you want to use the command.
 mkdir -p .claude/commands
-cp -r /path/to/this/github-issue-delivery .claude/commands/
 
-# Or, if you want to track upstream updates, symlink instead:
-ln -s /path/to/this/github-issue-delivery .claude/commands/github-issue-delivery
+# 1. Install the support tree at .claude/github-issue-delivery/
+cp -r /path/to/this/github-issue-delivery .claude/github-issue-delivery
+# Or symlink to track upstream updates:
+#   ln -s /path/to/this/github-issue-delivery .claude/github-issue-delivery
+
+# 2. Place the wrapper under .claude/commands/ so Claude Code sees the
+#    slash command. Symlink (preferred — single source of truth):
+ln -s ../github-issue-delivery/deliver-issue.md .claude/commands/deliver-issue.md
+# Or copy if you can't symlink:
+#   cp .claude/github-issue-delivery/deliver-issue.md .claude/commands/deliver-issue.md
 ```
 
-After this step the command is available as `/github-issue-delivery:deliver-issue` (Claude Code namespaces commands placed in subdirectories).
-
-### Step 2 (optional) — bare command name
-
-If you prefer the bare name `/deliver-issue`, also symlink the wrapper file to the top of `.claude/commands/`. **This requires step 1 to be done first** — the wrapper hard-codes the install path under `.claude/commands/github-issue-delivery/`, and a bare-symlinked wrapper without the directory installed will fail to find its own scripts and references.
-
-```bash
-ln -s github-issue-delivery/deliver-issue.md .claude/commands/deliver-issue.md
-```
+The command is available as `/deliver-issue`.
 
 ### Verify install
 
-From your project root:
+From the project root:
 
 ```bash
-# Inline-load syntax used by the wrapper:
-.claude/commands/github-issue-delivery/scripts/load-issues.sh
+# Should print "(no issue numbers passed; …)":
+.claude/github-issue-delivery/scripts/load-issues.sh
 
-# Should print "(no issue numbers passed; …)" — that's the expected
-# fallback when called with no args.
+# Should show only `/deliver-issue` from this command (plus your other
+# commands, if any) — NOT every .md file in the support tree:
+ls .claude/commands/
 ```
 
 ## Usage
