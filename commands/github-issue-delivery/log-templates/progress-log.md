@@ -1,6 +1,6 @@
 # Progress log
 
-Append-only. Format and rules: `references/log-formats.md`.
+Append-only. Format and rules: see `log-formats.md` in the github-issue-delivery command directory.
 
 ## [YYYY-MM-DD HH:MM TZ] Initialized
 Status: started
