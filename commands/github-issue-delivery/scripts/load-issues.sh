@@ -32,10 +32,11 @@ for n in "$@"; do
   fi
 
   printf '\n### Issue #%s\n' "$n"
-  if ! gh issue view "$n" --json number,title,state,labels,assignees,milestone,body,comments \
+  if ! gh issue view "$n" --json number,title,state,labels,assignees,milestone,body,comments,author \
       --template '
 **Title:** {{.title}}
 **State:** {{.state}}
+**Author:** {{if .author}}@{{.author.login}}{{else}}(deleted user){{end}}
 **Labels:** {{range .labels}}{{.name}} {{end}}
 **Assignees:** {{range .assignees}}@{{.login}} {{end}}
 **Milestone:** {{if .milestone}}{{.milestone.title}}{{else}}(none){{end}}
@@ -45,7 +46,7 @@ for n in "$@"; do
 
 **Comments ({{len .comments}}):**
 {{range .comments}}
-- @{{.author.login}} ({{.createdAt}}): {{.body}}
+- {{if .author}}@{{.author.login}}{{else}}(deleted user){{end}} ({{.createdAt}}): {{.body}}
 {{end}}
 ' 2>/dev/null; then
     printf '(could not load issue #%s — does it exist in this repo?)\n' "$n"

@@ -36,6 +36,8 @@ There are **two kinds** of artifact and they have different lifecycle rules.
 
 Templates: [`log-templates/`](log-templates/). Entry formats: [`log-formats.md`](log-formats.md). Initialization: `scripts/init-artifacts.sh <dir>`. Append a milestone: `scripts/append-progress.sh <dir> "<heading>"`.
 
+> **Script paths.** All `scripts/...` paths in this document are relative to the install directory of this command. Under Claude Code that's `.claude/commands/github-issue-delivery/`, so the agent should call `.claude/commands/github-issue-delivery/scripts/init-artifacts.sh ...`. Other clients should substitute their install path.
+
 If the user explicitly asks for a clean run, archive **everything** (logs included) first — never delete history.
 
 ## Roles

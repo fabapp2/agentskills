@@ -24,6 +24,10 @@ github-issue-delivery/
 
 ## Install for Claude Code
 
+Installation is two steps. **Step 1 is required**; step 2 is optional and only changes the command name from `/github-issue-delivery:deliver-issue` to the bare `/deliver-issue`.
+
+### Step 1 (required) — install the directory
+
 Copy or symlink the entire `github-issue-delivery/` directory into your project's `.claude/commands/`:
 
 ```bash
@@ -35,15 +39,15 @@ cp -r /path/to/this/github-issue-delivery .claude/commands/
 ln -s /path/to/this/github-issue-delivery .claude/commands/github-issue-delivery
 ```
 
-The command will be available as `/github-issue-delivery:deliver-issue` (Claude Code namespaces commands placed in subdirectories).
+After this step the command is available as `/github-issue-delivery:deliver-issue` (Claude Code namespaces commands placed in subdirectories).
 
-If you prefer the bare name `/deliver-issue`, also symlink the wrapper file to the top of `.claude/commands/`:
+### Step 2 (optional) — bare command name
+
+If you prefer the bare name `/deliver-issue`, also symlink the wrapper file to the top of `.claude/commands/`. **This requires step 1 to be done first** — the wrapper hard-codes the install path under `.claude/commands/github-issue-delivery/`, and a bare-symlinked wrapper without the directory installed will fail to find its own scripts and references.
 
 ```bash
 ln -s github-issue-delivery/deliver-issue.md .claude/commands/deliver-issue.md
 ```
-
-The wrapper resolves all paths against `.claude/commands/github-issue-delivery/...`, so this works regardless of which symlink you invoke.
 
 ### Verify install
 

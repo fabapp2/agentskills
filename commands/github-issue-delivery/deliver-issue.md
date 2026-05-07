@@ -10,11 +10,13 @@ You are the **orchestrator** of a GitHub issue-delivery workflow.
 
 ## Repo state
 
-- Branch: !`git branch --show-current`
+- Branch: !`git branch --show-current 2>/dev/null || echo "(not in a git repo)"`
 - Working tree:
 !`git status --short || true`
 
 ## Issue context (preloaded)
+
+`$ARGUMENTS` is expected to be a space-separated list of GitHub issue numbers (e.g. `42` or `42 43`). The script validates each token and skips non-numeric input.
 
 !`.claude/commands/github-issue-delivery/scripts/load-issues.sh $ARGUMENTS`
 
@@ -22,11 +24,11 @@ You are the **orchestrator** of a GitHub issue-delivery workflow.
 
 Follow the workflow at @.claude/commands/github-issue-delivery/PROCEDURE.md from step 1 (Initialize) through step 12 (Final updates).
 
-**Reference docs** (load on demand):
+**Reference docs** (read only when the relevant step calls for them — these are intentionally **not** `@`-referenced here so the prompt stays small on every invocation):
 
-- @.claude/commands/github-issue-delivery/team-roles.md — role missions, outputs, subagent brief format
-- @.claude/commands/github-issue-delivery/log-formats.md — progress and decision log entry formats
-- @.claude/commands/github-issue-delivery/github-issue-templates.md — issue comment templates
+- `.claude/commands/github-issue-delivery/team-roles.md` — role missions, outputs, subagent brief format. Read at step 7 (XP pair) or whenever delegating to a subagent.
+- `.claude/commands/github-issue-delivery/log-formats.md` — progress and decision log entry formats. Read at step 1 if the formats aren't already familiar.
+- `.claude/commands/github-issue-delivery/github-issue-templates.md` — issue comment templates. Read at step 5 and step 12 before posting.
 
 **Helper scripts** (call via Bash; default artifact directory `.claude/issue-delivery/`):
 

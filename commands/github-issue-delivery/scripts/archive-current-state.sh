@@ -15,8 +15,16 @@
 set -euo pipefail
 
 ARTIFACT_DIR="${1:-.claude/issue-delivery}"
-TIMESTAMP="$(date +%Y-%m-%d-%H%M)"
+TIMESTAMP="$(date +%Y-%m-%d-%H%M%S)"
 ARCHIVE_DIR="$ARTIFACT_DIR/archive/$TIMESTAMP"
+
+# In the unlikely case of a same-second collision (e.g. concurrent runs),
+# pick a numeric suffix rather than co-mingling files.
+suffix=1
+while [[ -e "$ARCHIVE_DIR" ]]; do
+  ARCHIVE_DIR="$ARTIFACT_DIR/archive/${TIMESTAMP}-${suffix}"
+  suffix=$((suffix + 1))
+done
 
 if [[ ! -d "$ARTIFACT_DIR" ]]; then
   echo "archive-current-state: $ARTIFACT_DIR does not exist; nothing to archive"
