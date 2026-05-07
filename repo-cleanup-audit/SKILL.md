@@ -50,16 +50,16 @@ even with `--dry-run` flags, even "just to test":
 - `git checkout`, `git switch`, `git restore`
 - `git merge`, `git rebase`, `git cherry-pick`, `git revert`
 - `git commit`, `git add`, `git rm`, `git mv`
-- `git stash` (any subcommand including `list` is fine, but `push`/`pop`/`drop` are forbidden — prefer `git stash list` only)
+- Bare `git stash` (which is an alias for `git stash push`), and the write subcommands `push`/`save`/`pop`/`drop`/`apply`/`create`/`store`/`clear`. Only `git stash list` and `git stash show` are allowed.
 - `git tag` writes (`-d`, `-f`, creating tags); `git tag` listing is allowed
 - `git remote add`, `git remote remove`, `git remote set-url`
 - `git config` writes; `git config --get*`/`--list` is allowed
-- `git gc`, `git prune`, `git repack`, `git fsck --connectivity-only --no-dangling` writes
+- `git gc`, `git prune`, `git repack`
 - `git fetch`, `git pull` (these mutate refs and the object database)
 - `gh issue close`, `gh issue edit`, `gh issue comment`, `gh issue create`
 - `gh label create`, `gh label edit`, `gh label delete`
-- `gh pr merge`, `gh pr close`, `gh pr edit`, `gh pr create`, `gh pr comment`
-- `gh release` writes, `gh repo edit`, `gh repo delete`, `gh api -X POST/PUT/PATCH/DELETE`
+- `gh pr merge`, `gh pr close`, `gh pr edit`, `gh pr create`, `gh pr comment`, `gh pr checkout`
+- `gh release` writes, `gh repo edit`, `gh repo delete`, `gh api -X POST|PUT|PATCH|DELETE` (case-insensitive, including `--method` and `-X=` forms)
 - Any shell command that writes outside a single temporary directory the
   agent itself created and announced
 - Any installer (`pip install`, `npm install`, `apt-get install`, etc.)
@@ -77,7 +77,8 @@ Only read-style commands are permitted. Examples:
 - `git tag --list`, `git describe --tags --always`
 - `git ls-files`, `git ls-tree`, `git rev-parse`, `git show --stat`
 - `git config --get`, `git config --list`
-- `git diff --stat <a>...<b>` (read-only comparison; never `git diff` that writes)
+- `git diff --stat <a>...<b>` and other plain `git diff` invocations (read-only)
+- `git fsck` (read-only integrity check)
 - `gh auth status`, `gh issue list`, `gh issue view`, `gh pr list`,
   `gh pr view`, `gh repo view`, `gh api -X GET ...`
 - POSIX read tools: `ls`, `find ... -print`, `grep`, `awk`, `sed -n`,
@@ -404,9 +405,16 @@ explicitly authorized task with full human review.
 
 ## Notes on portability
 
-- The bundled script is POSIX `sh`-compatible (run via `bash` for arrays).
+- The bundled script targets Bash 3.2+ (works on stock macOS bash and any
+  modern Linux). It does not rely on GNU-only flags except `du -b`, which
+  has a transparent fallback to `du -k` for BSD/macOS.
 - The skill never depends on Claude-specific tools, metadata fields, or
   conversation features. Any capable coding agent that can read files and
   invoke shell commands can execute it.
 - The `allowed_tools` field in the header is advisory; agents that do not
   recognize it should ignore it.
+- **Header format.** This skill uses a TOML-style `+++` frontmatter at the
+  request of its author. The Agent Skills reference specification uses YAML
+  `---` frontmatter; if a loader rejects the TOML form, swap `+++` for
+  `---` and convert `key = "value"` to `key: value` — the field names and
+  semantics are identical.

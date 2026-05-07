@@ -40,34 +40,39 @@ _FORBIDDEN_PATTERNS=(
   '(^|[[:space:]])git[[:space:]]+tag[[:space:]]+(-d|--delete|-f|--force|-a|-s|-u)'
   '(^|[[:space:]])git[[:space:]]+remote[[:space:]]+(add|remove|rename|set-url|set-head|prune)'
   '(^|[[:space:]])git[[:space:]]+config[[:space:]]+(--add|--unset|--unset-all|--rename-section|--remove-section|--replace-all)'
-  '(^|[[:space:]])git[[:space:]]+stash[[:space:]]+(push|save|pop|drop|apply|create|store|clear)'
+  # bare `git stash` (alias for `stash push`) and any flag-form, plus write subcommands.
+  # `git stash list` and `git stash show` remain allowed.
+  '(^|[[:space:]])git[[:space:]]+stash[[:space:]]+(push|save|pop|drop|apply|create|store|clear)([[:space:]]|$)'
+  '(^|[[:space:]])git[[:space:]]+stash([[:space:]]*$|[[:space:]]+-)'
   '(^|[[:space:]])git[[:space:]]+worktree[[:space:]]+(add|remove|move|prune|repair|lock|unlock)'
   '(^|[[:space:]])git[[:space:]]+update-ref'
-  '(^|[[:space:]])git[[:space:]]+symbolic-ref[[:space:]]+[^-]'
+  # symbolic-ref write form: a non-flag positional after the subcommand means it's
+  # being asked to set HEAD. Read forms use --short / --quiet / -q only.
+  '(^|[[:space:]])git[[:space:]]+symbolic-ref([[:space:]]+--?[A-Za-z-]+)*[[:space:]]+(HEAD|refs/)[^[:space:]]*[[:space:]]+(HEAD|refs/)'
   '(^|[[:space:]])git[[:space:]]+filter-(branch|repo)'
-  # gh mutating subcommands
-  '(^|[[:space:]])gh[[:space:]]+(issue|pr|label|release|repo|gist|secret|variable|workflow|run|cache)[[:space:]]+(create|close|edit|delete|comment|merge|reopen|lock|unlock|pin|unpin|transfer|fork|clone|rerun|cancel|disable|enable|set|update|add|remove)'
-  '(^|[[:space:]])gh[[:space:]]+api[[:space:]]+.*-X[[:space:]]+(POST|PUT|PATCH|DELETE)'
-  '(^|[[:space:]])gh[[:space:]]+api[[:space:]]+.*--method[[:space:]]+(POST|PUT|PATCH|DELETE)'
+  # gh mutating subcommands. `checkout` mutates the working tree.
+  '(^|[[:space:]])gh[[:space:]]+(issue|pr|label|release|repo|gist|secret|variable|workflow|run|cache)[[:space:]]+(create|close|edit|delete|comment|merge|reopen|lock|unlock|pin|unpin|transfer|fork|clone|rerun|cancel|disable|enable|set|update|add|remove|checkout)'
+  # gh api with a non-GET method, in any case and either flag form (-X / --method),
+  # including --method=POST and -XPOST. Guard runs grep -E -i so case is handled.
+  '(^|[[:space:]])gh[[:space:]]+api([[:space:]]|.*[[:space:]])(-X[[:space:]=]*|--method[[:space:]=]+)(POST|PUT|PATCH|DELETE)'
   '(^|[[:space:]])gh[[:space:]]+auth[[:space:]]+(login|logout|refresh|setup-git)'
   # installers / package managers
   '(^|[[:space:]])(pip|pipx|pip3|uv|poetry|conda|npm|pnpm|yarn|bun|brew|apt|apt-get|dnf|yum|pacman|zypper|cargo|go|gem|nix-env)[[:space:]]+(install|add|remove|uninstall|update|upgrade|build|publish)'
-  # shell file mutators outside our output dir
+  # shell file mutators
   '(^|[[:space:]])(rm|rmdir|mv|cp|chmod|chown|tee|truncate|ln|mkfifo)[[:space:]]'
-  # redirections that write files
-  '>[[:space:]]*/'
 )
 
-# Track an unmodifiable absolute path for the output dir so the guard can
-# whitelist file writes scoped to it.
-_OUT_ABS=""
-
 _guard() {
-  # Scan the joined argv against forbidden patterns.
+  # Scan the joined argv against forbidden patterns. Case-insensitive so
+  # variants like `gh api -X post` or `GIT PUSH` cannot bypass the guard.
+  # Note: shell redirections (`>`, `>>`) are interpreted by the caller and
+  # never reach _run's argv, so the guard can only police what _run sees.
+  # All file writes in this script go through `_write` / `_append` which
+  # are anchored under $FACTS_DIR; no other code path writes files.
   local joined="$*"
   local pat
   for pat in "${_FORBIDDEN_PATTERNS[@]}"; do
-    if printf '%s' "$joined" | grep -E -q -- "$pat"; then
+    if printf '%s' "$joined" | grep -E -i -q -- "$pat"; then
       printf 'audit.sh: refusing forbidden command: %s\n' "$joined" >&2
       printf 'audit.sh: this skill is strictly read-only\n' >&2
       exit 99
@@ -292,9 +297,12 @@ LIMIT=200
 _run git log --no-merges -n "$LIMIT" --date=short \
   --pretty=format:'%h%x09%ad%x09%ae%x09%s' 2>/dev/null | _write recent-commits.tsv
 
-# Author summary across all history (capped in quick mode).
+# Author summary. In quick mode, sample the last 500 commits via git log
+# (works on shallow clones where HEAD~500 may not exist). In full mode,
+# shortlog walks the entire reachable history.
 if [ "$MODE" = "quick" ]; then
-  _run git shortlog -sne --no-merges -n HEAD~500..HEAD 2>/dev/null | _write commit-author-summary.tsv
+  _run git log -n 500 --no-merges --pretty=format:'%aN <%aE>' 2>/dev/null \
+    | sort | uniq -c | sort -rn | _write commit-author-summary.tsv
 else
   _run git shortlog -sne --no-merges 2>/dev/null | _write commit-author-summary.tsv
 fi
