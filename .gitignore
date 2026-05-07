@@ -4,3 +4,4 @@
 .vscode/
 .agents/
 *-report*
+node_modules/

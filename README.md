@@ -97,6 +97,44 @@ These skills work with any IDE agent that reads `.agents/skills/` directories:
 - [agentskillsdb.com](https://www.agentskillsdb.com/) — Database of available Agent Skills
 - [Anthropic Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) — Original spec and announcement from Anthropic
 
+## Install Slash Commands
+
+This repo also ships ready-to-use Claude Code slash commands under `commands/`. The snippets below pull each command directly from GitHub into the current project's `.claude/commands/` — run them from your project root, no edits required.
+
+Install all bundled commands:
+
+```bash
+mkdir -p .claude/commands
+curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=2 -C .claude/commands \
+      agentskills-main/commands/code-review \
+      agentskills-main/commands/repo-cleanup-audit \
+      agentskills-main/commands/github-issue-delivery \
+      agentskills-main/commands/discovery-interview
+```
+
+Or install a single command (pick the one you want):
+
+```bash
+# code-review (available as /code-review:review)
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/code-review
+
+# repo-cleanup-audit (available as /repo-cleanup-audit:audit)
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/repo-cleanup-audit
+
+# github-issue-delivery (available as /github-issue-delivery:deliver-issue)
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/github-issue-delivery
+
+# discovery-interview (available as /discovery-interview:interview)
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/discovery-interview
+```
+
+See each command's `README.md` (e.g. [`commands/code-review/README.md`](commands/code-review/README.md)) for usage details and how to expose the bare command name (e.g. `/review` instead of `/code-review:review`).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add or improve skills, and
