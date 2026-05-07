@@ -25,7 +25,8 @@ curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.g
   | tar -xz --strip-components=2 -C .claude/commands \
       agentskills-main/commands/code-review \
       agentskills-main/commands/repo-cleanup-audit \
-      agentskills-main/commands/github-issue-delivery
+      agentskills-main/commands/github-issue-delivery \
+      agentskills-main/commands/discovery-interview
 ```
 
 Or install a single command (pick the one you want):
@@ -42,6 +43,10 @@ mkdir -p .claude/commands && curl -L https://github.com/agentskills/agentskills/
 # github-issue-delivery (available as /github-issue-delivery:deliver-issue)
 mkdir -p .claude/commands && curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.gz \
   | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/github-issue-delivery
+
+# discovery-interview (available as /discovery-interview:interview)
+mkdir -p .claude/commands && curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/discovery-interview
 ```
 
 See each command's `README.md` (e.g. [`commands/code-review/README.md`](commands/code-review/README.md)) for usage details and how to expose the bare command name (e.g. `/review` instead of `/code-review:review`).
