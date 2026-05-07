@@ -21,7 +21,7 @@ Install all bundled commands:
 
 ```bash
 mkdir -p .claude/commands
-curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.gz \
+curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
   | tar -xz --strip-components=2 -C .claude/commands \
       agentskills-main/commands/code-review \
       agentskills-main/commands/repo-cleanup-audit \
@@ -33,19 +33,19 @@ Or install a single command (pick the one you want):
 
 ```bash
 # code-review (available as /code-review:review)
-mkdir -p .claude/commands && curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.gz \
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
   | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/code-review
 
 # repo-cleanup-audit (available as /repo-cleanup-audit:audit)
-mkdir -p .claude/commands && curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.gz \
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
   | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/repo-cleanup-audit
 
 # github-issue-delivery (available as /github-issue-delivery:deliver-issue)
-mkdir -p .claude/commands && curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.gz \
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
   | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/github-issue-delivery
 
 # discovery-interview (available as /discovery-interview:interview)
-mkdir -p .claude/commands && curl -L https://github.com/agentskills/agentskills/archive/refs/heads/main.tar.gz \
+mkdir -p .claude/commands && curl -L https://github.com/promptics/agentskills/archive/refs/heads/main.tar.gz \
   | tar -xz --strip-components=2 -C .claude/commands agentskills-main/commands/discovery-interview
 ```
 
