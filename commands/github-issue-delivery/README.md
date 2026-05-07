@@ -15,6 +15,7 @@ github-issue-delivery/
 ├── scripts/                        ← helper scripts
 │   ├── init-artifacts.sh
 │   ├── append-progress.sh
+│   ├── append-decision.sh
 │   ├── archive-current-state.sh
 │   └── load-issues.sh
 └── deliver-issue.md                ← Claude Code slash command wrapper
@@ -82,7 +83,7 @@ The agent will create artifacts under `.claude/issue-delivery/` (configurable �
 
 1. Have the agent read `PROCEDURE.md`, `team-roles.md`, and the supporting docs as context.
 2. Have the agent run `scripts/init-artifacts.sh .claude/issue-delivery` to create the artifact files.
-3. Have the agent execute the 12-step procedure, calling `scripts/append-progress.sh` and `scripts/archive-current-state.sh` as instructed.
+3. Have the agent execute the 12-step procedure, calling `scripts/append-progress.sh`, `scripts/append-decision.sh`, and `scripts/archive-current-state.sh` as instructed.
 4. Issue loading is straightforward via `gh issue view <N>` or the agent's own GitHub integration.
 
 The procedure does not depend on any Claude-Code-specific feature beyond what the wrapper provides; everything in `PROCEDURE.md` is plain Markdown plus shell helpers.

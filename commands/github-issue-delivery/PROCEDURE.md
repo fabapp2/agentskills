@@ -34,7 +34,7 @@ There are **two kinds** of artifact and they have different lifecycle rules.
 - `.claude/issue-delivery/security-report.md` — threat model, findings, pen-test results
 - `.claude/issue-delivery/sprint-review-demo.md` — final demo write-up
 
-Templates: [`log-templates/`](log-templates/). Entry formats: [`log-formats.md`](log-formats.md). Initialization: `scripts/init-artifacts.sh <dir>`. Append a milestone: `scripts/append-progress.sh <dir> "<heading>"`.
+Templates: [`log-templates/`](log-templates/). Entry formats: [`log-formats.md`](log-formats.md). Initialization: `scripts/init-artifacts.sh <dir>`. Append a milestone: `scripts/append-progress.sh <dir> "<heading>"`. Append a decision: `scripts/append-decision.sh <dir> "<title>"` (auto-numbers D-NNN).
 
 > **Script paths.** All `scripts/...` paths in this document are relative to the install directory of this command. Under Claude Code that's `.claude/commands/github-issue-delivery/`, so the agent should call `.claude/commands/github-issue-delivery/scripts/init-artifacts.sh ...`. Other clients should substitute their install path.
 
@@ -202,7 +202,7 @@ Prefer **vertical slices** that can be demoed end-to-end over horizontal layers.
 - No unrelated refactors or broad rewrites.
 - Stop and escalate on unresolved product, architecture, security, or destructive decisions.
 
-**Logging.** Append progress-log entries at meaningful milestones with `scripts/append-progress.sh`. Record material decisions in the decision log.
+**Logging.** Append progress-log entries at meaningful milestones with `scripts/append-progress.sh`. Record material decisions in the decision log with `scripts/append-decision.sh` (auto-increments the D-NNN identifier).
 
 ### 8. Verification
 
@@ -374,4 +374,4 @@ When you can't finish the full scope: complete the safe subset, leave the repo c
 - [`log-formats.md`](log-formats.md) — entry formats for progress and decision logs
 - [`github-issue-templates.md`](github-issue-templates.md) — issue comment templates
 - [`log-templates/`](log-templates/) — starter templates for the six artifact files
-- [`scripts/`](scripts/) — helper scripts (`init-artifacts.sh`, `archive-current-state.sh`, `append-progress.sh`, `load-issues.sh`)
+- [`scripts/`](scripts/) — helper scripts (`init-artifacts.sh`, `archive-current-state.sh`, `append-progress.sh`, `append-decision.sh`, `load-issues.sh`)
