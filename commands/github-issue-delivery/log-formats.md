@@ -42,7 +42,7 @@ Related file(s):
 
 **Tips.**
 
-- Number decisions sequentially (`D-001`, `D-002`, …). Continue numbering across runs on the same branch — never reset. Look at the highest existing `D-NNN` in the file before adding a new entry.
+- Number decisions sequentially (`D-001`, `D-002`, …). Continue numbering across runs on the same branch — never reset. Look at the highest existing `D-NNN` in the file before adding a new entry. The `scripts/append-decision.sh` helper does this automatically (it ignores the literal `<short title>` placeholder in a freshly initialized log).
 - "Options considered" should include at least one alternative — otherwise the decision was probably obvious enough to skip.
 - "Consequences" should mention reversibility and any follow-up that's now required.
 
