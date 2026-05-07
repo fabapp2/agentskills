@@ -57,7 +57,7 @@ When delegating to a subagent, use the **Task brief** template at the bottom of 
 
 ---
 
-## xp-engineer-driver (implementation-pair-driver)
+## xp-driver (implementation-pair-driver)
 
 **Mission.** Implement the agreed plan in small, focused slices.
 
@@ -72,7 +72,7 @@ When delegating to a subagent, use the **Task brief** template at the bottom of 
 
 ---
 
-## xp-engineer-navigator (implementation-pair-navigator)
+## xp-navigator (implementation-pair-navigator)
 
 **Mission.** Improve quality through continuous pair review during implementation.
 
@@ -170,7 +170,7 @@ When delegating to a subagent, use the **Task brief** template at the bottom of 
 - Map demo steps to acceptance criteria.
 - Summarize what was tested, what was reviewed, what remains.
 
-**Outputs.** `.claude/sprint-review-demo.md` containing: sprint summary, demo scenarios, verification evidence, known limitations, follow-ups.
+**Outputs.** `.claude/issue-delivery/sprint-review-demo.md` containing: sprint summary, demo scenarios, verification evidence, known limitations, follow-ups.
 
 ---
 

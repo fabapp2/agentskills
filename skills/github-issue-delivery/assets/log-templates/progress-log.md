@@ -7,7 +7,7 @@ Status: started
 Issues:
 Agents involved: orchestrator
 Actions taken: created log files; captured initial git state
-Files touched: .claude/progress-log.md, .claude/decision-log.md, .claude/implementation-plan.md, .claude/review-report.md, .claude/security-report.md, .claude/sprint-review-demo.md
+Files touched: .claude/issue-delivery/progress-log.md, .claude/issue-delivery/decision-log.md, .claude/issue-delivery/implementation-plan.md, .claude/issue-delivery/review-report.md, .claude/issue-delivery/security-report.md, .claude/issue-delivery/sprint-review-demo.md
 Commands run: git status; git branch --show-current
 Findings:
 Next step: read GitHub issues

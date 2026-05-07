@@ -1,9 +1,17 @@
 ---
 name: github-issue-delivery
-description: Deliver one or more GitHub issues end-to-end as an orchestrated agent team — read and clarify the issue, analyze the repo, plan, implement with XP-style pair engineering, add user-facing tests, run a mandatory review loop, perform security analysis and adversarial testing, and produce a sprint-review demo. Use when the user asks to "work on issue #N", "implement this issue", "deliver this ticket", "pick up the backlog", or otherwise wants autonomous, traceable delivery of GitHub issues with product clarification, testing, security review, and a demo summary — even if they don't say "agent team" or "sprint" explicitly. Do not use for one-off code edits, single-file refactors, or tasks unrelated to issue tracker delivery.
+description: >-
+  Deliver one or more GitHub issues end-to-end as an orchestrated agent team —
+  read and clarify the issue, analyze the repo, plan, implement with XP-style
+  pair engineering, add user-facing tests, run a mandatory review loop, perform
+  security analysis and adversarial testing, and produce a sprint-review demo.
+  Use when the user asks to "work on issue N", "implement this issue", "deliver
+  this ticket", "pick up the backlog", or otherwise wants autonomous, traceable
+  delivery of GitHub issues with product clarification, testing, security
+  review, and a demo summary — even if they don't say "agent team" or "sprint"
+  explicitly. Do not use for one-off code edits, single-file refactors, or
+  tasks unrelated to issue tracker delivery.
 license: Apache-2.0
-metadata:
-  version: "1.0"
 ---
 
 # GitHub Issue Delivery
@@ -22,18 +30,25 @@ If the user only wants a single isolated edit, **do not activate this skill** �
 
 ## Mandatory artifacts
 
-Create or append to these files. Use `.claude/` by default. If the repo already uses `.ai/`, `docs/decisions/`, or another convention, follow that and record the deviation in the decision log.
+Create six files under `.claude/issue-delivery/` by default. If the repo already uses `.ai/`, `docs/decisions/`, or another convention, follow it and record the deviation in the decision log. Don't drop these directly into `.claude/` — that's where Claude Code keeps `settings.json` and other runtime state.
 
-- `.claude/progress-log.md` — append-only, timestamped milestones
-- `.claude/decision-log.md` — append-only, material decisions
-- `.claude/implementation-plan.md` — current plan
-- `.claude/review-report.md` — review-loop findings
-- `.claude/security-report.md` — threat model, findings, pen-test results
-- `.claude/sprint-review-demo.md` — final demo write-up
+There are **two kinds** of artifact and they have different lifecycle rules.
 
-Templates: see [`assets/log-templates/`](assets/log-templates/). Entry formats: see [`references/log-formats.md`](references/log-formats.md).
+**Append-only logs** — never overwrite, never edit prior entries:
 
-**Never overwrite existing logs.** Append. If the user asked for a clean run, archive the old file first.
+- `.claude/issue-delivery/progress-log.md` — timestamped milestones
+- `.claude/issue-delivery/decision-log.md` — material decisions
+
+**Current-state documents** — rewritten as the work evolves; archive the previous version under `.claude/issue-delivery/archive/<YYYY-MM-DD-HHMM>/` before replacing:
+
+- `.claude/issue-delivery/implementation-plan.md` — the current plan
+- `.claude/issue-delivery/review-report.md` — latest review-loop findings
+- `.claude/issue-delivery/security-report.md` — threat model, findings, pen-test results
+- `.claude/issue-delivery/sprint-review-demo.md` — final demo write-up
+
+Templates: [`assets/log-templates/`](assets/log-templates/). Entry formats: [`references/log-formats.md`](references/log-formats.md).
+
+If the user explicitly asks for a clean run, archive **everything** (logs included) first — never delete history.
 
 ## Roles
 
@@ -98,13 +113,13 @@ Do not ask about things you can infer from the issue, code, tests, or docs.
 
 ### 5. Adjust GitHub issues
 
-After clarification, post a comment on the issue with: clarified acceptance criteria, scope/non-goals, dependencies, security considerations, demo scenario. Do **not** close the issue unless the user explicitly asked. Template: [`references/github-issue-templates.md`](references/github-issue-templates.md).
+After clarification, propose a comment for the issue with: clarified acceptance criteria, scope/non-goals, dependencies, security considerations, demo scenario. **Show the comment to the user and get explicit confirmation before posting** — issue comments are externally visible. Per-issue confirmation; one confirmation does not authorize others. Do **not** close the issue unless the user explicitly asked. Template: [`references/github-issue-templates.md`](references/github-issue-templates.md).
 
-If GitHub write access is unavailable, write the proposed comment into `.claude/implementation-plan.md` instead.
+If GitHub write access is unavailable, write the proposed comment into `.claude/issue-delivery/implementation-plan.md` instead.
 
 ### 6. Implementation plan
 
-Write `.claude/implementation-plan.md` containing: objective, acceptance criteria, demo scenarios, architecture approach, workstreams (mapped to acceptance criteria), files likely to change, verification matrix, threat-model summary, pen-test scope (if applicable), rollback plan, open risks.
+Write `.claude/issue-delivery/implementation-plan.md` containing: objective, acceptance criteria, demo scenarios, architecture approach, workstreams (mapped to acceptance criteria), files likely to change, verification matrix, threat-model summary, pen-test scope (if applicable), rollback plan, open risks.
 
 Prefer **vertical slices** that can be demoed end-to-end over horizontal layers.
 
@@ -139,7 +154,7 @@ Run **at least one** formal review pass after implementation and initial verific
 
 Reviewers: `code-reviewer`, `test-engineer`, `security-analyst`. Add `penetration-tester` if the change is externally reachable, `architect` if architecture moved, `product-owner` if user-visible behavior changed.
 
-Classify findings as **blocker / high / medium / low / note**. Fix all blockers and highs unless explicitly out of scope. Fix mediums when reasonable. Re-run verification after fixes. Record everything in `.claude/review-report.md`.
+Classify findings as **blocker / high / medium / low / note**. Fix all blockers and highs unless explicitly out of scope. Fix mediums when reasonable. Re-run verification after fixes. Record everything in `.claude/issue-delivery/review-report.md`.
 
 ### 10. Security & pen-testing
 
@@ -149,13 +164,15 @@ Required when the change touches: user input, authn/authz, data storage or acces
 - **Review**: authn/authz, validation, encoding, error handling, secrets, logging, data minimization, dependency risk.
 - **Adversarial testing**: injection, XSS, CSRF, SSRF, IDOR, path traversal, unsafe upload, auth bypass, privilege escalation, sensitive data exposure, business-rule bypass.
 
+**Authorization gate.** Before any adversarial action: state the proposed scope (targets, attack classes, expected side effects), get explicit user confirmation, and record the confirmation in `.claude/issue-delivery/security-report.md`. Authorization covers only the recorded scope — broadening it requires a fresh confirmation.
+
 Hard limits: only test the local repo or explicitly authorized targets. **Never** attack third-party or production systems. **Never** exfiltrate real secrets, credentials, or user data. **Never** perform destructive actions.
 
-Output → `.claude/security-report.md`.
+Output → `.claude/issue-delivery/security-report.md`.
 
 ### 11. Sprint-review demo
 
-Write `.claude/sprint-review-demo.md`. Lead with **user-visible** behavior (before/after), then technical implementation, then verification evidence. Map every demo step to an acceptance criterion. Include: demo script, screenshots / command transcripts / API examples where applicable, review summary, security summary, known limitations, follow-ups.
+Write `.claude/issue-delivery/sprint-review-demo.md`. Lead with **user-visible** behavior (before/after), then technical implementation, then verification evidence. Map every demo step to an acceptance criterion. Include: demo script, screenshots / command transcripts / API examples where applicable, review summary, security summary, known limitations, follow-ups.
 
 ### 12. Final updates
 
@@ -201,7 +218,7 @@ Work is not done until:
 8. Verification was run; results are recorded.
 9. At least one review loop ran; blockers and highs are fixed.
 10. Security review ran for sensitive surfaces; pen-tests ran when applicable.
-11. `.claude/sprint-review-demo.md` exists and leads with user value.
+11. `.claude/issue-delivery/sprint-review-demo.md` exists and leads with user value.
 12. Final user summary lists changes, verification, review, security, residual risks, and artifact locations.
 
 ## Failure handling

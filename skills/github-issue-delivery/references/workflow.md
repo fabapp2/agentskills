@@ -12,11 +12,11 @@ Per-step checklists and decision points for the 12-step delivery loop. The summa
 
 1. Confirm repo root (`pwd`, `git rev-parse --show-toplevel`).
 2. `git status` and current branch (`git branch --show-current`).
-3. Decide log directory: `.claude/` by default, `.ai/` if the repo already uses it, or whatever the repo convention is. Log the choice in the decision log if it isn't `.claude/`.
-4. Create the six artifact files if missing (templates: `assets/log-templates/`).
+3. Decide artifact directory: `.claude/issue-delivery/` by default, `.ai/issue-delivery/` if the repo already uses `.ai/`, or whatever the repo convention is. Log the choice in the decision log if it isn't the default.
+4. Create the six artifact files if missing (templates: `assets/log-templates/`). Distinguish append-only logs (`progress-log.md`, `decision-log.md`) from current-state documents (the other four) — see `SKILL.md` "Mandatory artifacts".
 5. **Append** an initial progress-log entry: timestamp, repo path, branch, issues in scope, current assumptions, `git status` summary.
 
-**Do not.** Overwrite existing logs unless the user explicitly requested a clean run.
+**Do not.** Overwrite existing logs. If the user explicitly requested a clean run, archive the previous artifact directory under `archive/<YYYY-MM-DD-HHMM>/` first — never delete history.
 
 ---
 
@@ -44,7 +44,7 @@ Per-step checklists and decision points for the 12-step delivery loop. The summa
 - Product risk level
 - Candidate demo scenario
 
-**Output.** Append issue analysis to `.claude/progress-log.md`. Add product-scope decisions to the decision log when they matter.
+**Output.** Append issue analysis to `.claude/issue-delivery/progress-log.md`. Add product-scope decisions to the decision log when they matter.
 
 ---
 
@@ -60,7 +60,7 @@ Per-step checklists and decision points for the 12-step delivery loop. The summa
 4. Capture test framework, test commands, build, lint, typecheck, format commands.
 5. Identify trust boundaries, sensitive data flows, input surfaces, authn/authz, network boundaries, file handling, dependency risks.
 
-**Output.** Append to `.claude/implementation-plan.md`:
+**Output.** Append to `.claude/issue-delivery/implementation-plan.md`:
 
 - Architecture summary
 - Relevant files / modules
@@ -89,7 +89,7 @@ Per-step checklists and decision points for the 12-step delivery loop. The summa
 1. State the assumptions you'll proceed with.
 2. Continue.
 
-**Output.** Log the questions, defaults, and assumptions in `.claude/progress-log.md`.
+**Output.** Log the questions, defaults, and assumptions in `.claude/issue-delivery/progress-log.md`.
 
 ---
 
@@ -97,11 +97,11 @@ Per-step checklists and decision points for the 12-step delivery loop. The summa
 
 **Owners.** product-owner, orchestrator.
 
-**Do.** If GitHub write access is available, post a comment on each affected issue with: clarified acceptance criteria, scope/non-goals, dependencies, security considerations, demo scenarios. (Templates: `references/github-issue-templates.md`.)
+**Do.** Posting an issue comment is an externally visible action. Before posting, surface the proposed comment text to the user and get explicit confirmation. After confirmation, if GitHub write access is available, post a comment on each affected issue with: clarified acceptance criteria, scope/non-goals, dependencies, security considerations, demo scenarios. (Templates: `references/github-issue-templates.md`.)
 
-**Do not.** Close issues unless the user explicitly asked or repo conventions clearly indicate it.
+**Do not.** Close issues unless the user explicitly asked or repo conventions clearly indicate it. Do not post the comment without a per-issue confirmation — a confirmation for one issue does not authorize comments on others.
 
-**Fallback.** If no write access, write the proposed comment into `.claude/implementation-plan.md` and log the limitation.
+**Fallback.** If no write access, write the proposed comment into `.claude/issue-delivery/implementation-plan.md` and log the limitation.
 
 ---
 
@@ -130,7 +130,7 @@ Per-step checklists and decision points for the 12-step delivery loop. The summa
 
 **Pause and re-clarify if.** The change is destructive, alters public APIs, performs data migrations, modifies authn/authz, or has unresolved product decisions.
 
-**Output.** `.claude/implementation-plan.md` (overwrite or append per repo convention; log the choice).
+**Output.** `.claude/issue-delivery/implementation-plan.md`. This is a current-state document: archive any previous version under `.claude/issue-delivery/archive/<YYYY-MM-DD-HHMM>/` before rewriting, then write the new plan.
 
 ---
 
@@ -184,7 +184,7 @@ Per-step checklists and decision points for the 12-step delivery loop. The summa
 
 **If a check can't run** in this environment, document: why; the exact command that should be run later; residual risk; suggested mitigation.
 
-**Output.** Append verification evidence to `.claude/review-report.md` and `.claude/sprint-review-demo.md`.
+**Output.** Append verification evidence to `.claude/issue-delivery/review-report.md` and `.claude/issue-delivery/sprint-review-demo.md`.
 
 ---
 
@@ -206,7 +206,7 @@ Run **at least one** formal review pass after implementation and initial verific
 
 **Required perspectives.** Correctness; user-facing behavior; regression risk; test coverage; error handling; edge cases; maintainability; security; privacy; performance (where relevant); accessibility (where relevant).
 
-**Output.** `.claude/review-report.md`, plus `.claude/security-report.md` for the security pieces.
+**Output.** `.claude/issue-delivery/review-report.md`, plus `.claude/issue-delivery/security-report.md` for the security pieces.
 
 ---
 
@@ -214,9 +214,11 @@ Run **at least one** formal review pass after implementation and initial verific
 
 **Required when** the change touches: user input, authn/authz, data storage or access, logging, networking, file handling, dependencies, secrets, payments, admin functionality, public APIs.
 
-**security-analyst tasks.** Lightweight threat model (assets, trust boundaries, attackers, abuse cases, sensitive flows). Review authn/authz, input validation, output encoding, error handling, logging, secrets, dependencies. Recommend mitigations and tests.
+**security-analyst tasks.** Lightweight threat model (assets, trust boundaries, attackers, abuse cases, sensitive flows). Review authn/authz, input validation, output encoding, error handling, logging, secrets, dependencies. Recommend mitigations and tests. The threat-model review is read-only and does not require additional authorization.
 
-**penetration-tester tasks.** Within authorized local/test boundaries, attempt: injection, XSS, CSRF, SSRF, IDOR, path traversal, unsafe upload, auth bypass, privilege escalation, sensitive data exposure, error disclosure, business-rule bypass.
+**Authorization gate for adversarial testing.** Before any pen-test action, the orchestrator must (a) state the proposed scope (targets, attack classes, expected side effects), (b) get explicit user confirmation, and (c) record the confirmation in `.claude/issue-delivery/security-report.md` under "Authorization confirmation". Authorization covers only the scope as recorded — broadening scope requires a fresh confirmation.
+
+**penetration-tester tasks.** Only after the authorization gate. Within authorized local/test boundaries, attempt: injection, XSS, CSRF, SSRF, IDOR, path traversal, unsafe upload, auth bypass, privilege escalation, sensitive data exposure, error disclosure, business-rule bypass.
 
 **Hard limits.**
 
@@ -224,7 +226,7 @@ Run **at least one** formal review pass after implementation and initial verific
 - No exfiltration of real secrets, credentials, or user data.
 - No destructive actions.
 
-**Output → `.claude/security-report.md`.**
+**Output → `.claude/issue-delivery/security-report.md`.**
 
 - Scope
 - Threat-model summary
@@ -240,7 +242,7 @@ Run **at least one** formal review pass after implementation and initial verific
 
 **Owner.** demo-lead.
 
-**`.claude/sprint-review-demo.md` must contain.**
+**`.claude/issue-delivery/sprint-review-demo.md` must contain.**
 
 - Issue(s) addressed
 - User problem solved
@@ -264,8 +266,8 @@ Run **at least one** formal review pass after implementation and initial verific
 
 **Do.**
 
-1. Append final entries to `.claude/progress-log.md`: status, changed files, verification results, review results, security results, residual risks.
-2. Append final material decisions to `.claude/decision-log.md`.
+1. Append final entries to `.claude/issue-delivery/progress-log.md`: status, changed files, verification results, review results, security results, residual risks.
+2. Append final material decisions to `.claude/issue-delivery/decision-log.md`.
 3. Update GitHub issues with implementation summary, verification evidence, security notes, demo notes, follow-ups (if write access).
 4. **Do not close issues** unless the user explicitly asked or the repo's convention clearly indicates closure.
 5. Produce the final user-facing summary.

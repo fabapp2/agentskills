@@ -1,6 +1,6 @@
 # GitHub issue comment templates
 
-Use these when posting back to an issue. Keep comments concise — link to artifacts (`.claude/sprint-review-demo.md`, etc.) rather than pasting them.
+Use these when posting back to an issue. Keep comments concise — link to artifacts (`.claude/issue-delivery/sprint-review-demo.md`, etc.) rather than pasting them.
 
 ## After clarification — Implementation analysis
 
