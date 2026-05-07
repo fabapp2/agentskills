@@ -17,7 +17,8 @@ When delegating to a subagent, use the **Task brief** template at the bottom of 
 - Resolve conflicts between roles.
 - Maintain progress and decision logs.
 - Decide when clarification is required vs. when to proceed on a logged assumption.
-- Produce the final user-facing summary.
+- **Enforce build gates.** Block commits without a green `./build-sdk.sh` and block PR opens/updates without a green `./build-full.sh`.
+- Produce the final user-facing summary, including build-gate results and the PR URL.
 
 **Authority.** Final integration decisions. Final scope interpretation absent product clarification. Final acceptance recommendation after review and verification.
 
@@ -64,11 +65,12 @@ When delegating to a subagent, use the **Task brief** template at the bottom of 
 **Responsibilities.**
 
 - Make focused code changes. Match repo style. Keep diffs small.
-- Add or update tests alongside the implementation.
+- Add or update tests alongside the implementation (Playwright e2e/acceptance for user-facing slices).
+- **Run `./build-sdk.sh` before every commit.** Commit only on exit 0; never bypass via `--no-verify` or hook-skipping flags. Fix the underlying issue and re-run on failure.
 - Explain changed files and rationale to the navigator.
-- **Stop and escalate** on: unclear product behavior, architectural conflict, high-risk or destructive change, security ambiguity.
+- **Stop and escalate** on: unclear product behavior, architectural conflict, high-risk or destructive change, security ambiguity, persistent `build-sdk.sh` failures.
 
-**Outputs.** Changed files summary; implementation notes; commands run; known risks or unresolved questions.
+**Outputs.** Changed files summary; implementation notes; commands run (including each `build-sdk.sh` result); known risks or unresolved questions.
 
 ---
 
@@ -96,12 +98,14 @@ When delegating to a subagent, use the **Task brief** template at the bottom of 
 **Responsibilities.**
 
 - Identify the existing test strategy, frameworks, commands, and CI expectations.
-- Prefer **user-facing tests**: e2e, integration, API contract, UI behavior, CLI behavior, acceptance.
-- Add unit tests for edge cases, pure logic, and fast diagnosis where user-facing tests can't easily cover them.
-- Ensure every acceptance criterion has a verification path.
+- **Cover every feature with an e2e/acceptance test whenever possible.** Default to **Playwright** for user-facing flows; fall back to CLI/API integration tests only when a browser surface isn't involved. If a feature truly can't be e2e-tested, record the reason in the verification matrix and decision log.
+- **Run Playwright with user follow-along** during steps 7–9: `--headed --ui` (or `--debug`) plus `--trace on`. Surface trace/video paths so the user can replay the run.
+- Add unit tests for edge cases, pure logic, and fast diagnosis where e2e tests can't easily cover them.
+- Ensure every acceptance criterion has a verification path — preferably a Playwright test.
 - Run targeted tests first, then broader regression checks where practical.
+- Co-own the build gates with the driver: confirm `./build-sdk.sh` ran before each commit and that `./build-full.sh` is green before the PR is opened.
 
-**Outputs.** Verification matrix; tests added or updated; commands run + results; remaining coverage gaps + risk assessment.
+**Outputs.** Verification matrix; tests added or updated (Playwright specs called out explicitly); commands run + results; trace/video artifact paths; remaining coverage gaps + risk assessment.
 
 ---
 
@@ -153,9 +157,11 @@ When delegating to a subagent, use the **Task brief** template at the bottom of 
 
 - Inspect the final diff against the acceptance criteria.
 - Identify unnecessary complexity, inconsistent style, brittle abstractions, missing edge cases, regression risks.
+- **Drive a Playwright walk-through with the user** for any user-facing change — headed/UI mode with traces — and reference the trace path in the review report.
+- Confirm `./build-sdk.sh` ran on every commit (check `git log` + progress log) and that `./build-full.sh` is queued before PR open.
 - Recommend concrete improvements.
 
-**Outputs.** Findings classified as **blocker / high / medium / low / note**; required fixes; optional improvements.
+**Outputs.** Findings classified as **blocker / high / medium / low / note**; required fixes; optional improvements; Playwright trace/video references.
 
 ---
 

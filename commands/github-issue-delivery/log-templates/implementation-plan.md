@@ -36,9 +36,22 @@
 
 ## Verification matrix
 
-| Acceptance criterion | Test type | Test / file | Command |
-|---|---|---|---|
-|  |  |  |  |
+Every acceptance criterion needs an e2e/acceptance row (Playwright by default for user-facing flows). Justify any criterion that can't have one.
+
+| Acceptance criterion | Test type (e2e / integration / unit) | Test / file | Command | Trace / video path |
+|---|---|---|---|---|
+|  |  |  |  |  |
+
+## Build-gate plan
+
+- `./build-sdk.sh` — runs before every commit (pre-commit gate). Failure → fix and re-run; never `--no-verify`.
+- `./build-full.sh` — runs before opening or updating the PR (pre-PR gate). PR is only opened on exit 0.
+
+## Playwright follow-along plan
+
+- Command(s) the user should run to follow along live (`npx playwright test --headed --ui` etc.):
+- Trace/video output directory:
+- Replay command (`npx playwright show-trace ...`):
 
 ## Threat-model summary
 

@@ -60,6 +60,27 @@ Detailed role missions, outputs, and the subagent task-brief format: [`team-role
 
 When delegating to subagents, run them in parallel only for **independent, read-only** work (e.g. architecture survey + test-strategy survey). Never run parallel agents that edit the same files.
 
+## Build gates (mandatory)
+
+Two repo-level scripts gate progress. Both are blocking — do not bypass them, do not run them with `--no-verify` or equivalents.
+
+- **`./build-sdk.sh` — pre-commit gate.** Run before **every** commit. If it exits non-zero, fix the underlying issue and re-run; never skip hooks. Treat a failing `build-sdk.sh` the same as a failing test: investigate root cause, fix, re-run, log the failure and the fix in the progress log.
+- **`./build-full.sh` — pre-PR gate.** Must complete successfully before opening or updating any pull request. Run it after the final commit on the branch. If it fails, do not open the PR; fix the issue and re-run. Record the successful run (command + result + timestamp) in `review-report.md` and the progress log.
+
+If either script is missing from the repo, stop and ask the user — do not invent substitutes. If a script must be skipped for a documented reason (e.g. environment limitation), record the skip + the exact command the user must run later in the decision log under a new entry, and surface the gap in the final summary.
+
+## Acceptance-test policy (mandatory)
+
+Every feature delivered through this procedure must be covered by an **end-to-end / acceptance test whenever possible**. The default tool is **Playwright** for any user-facing surface (web UI, browser-driven flows). For non-browser surfaces (CLI, API, pure-library), use the closest equivalent (e.g. CLI integration tests, contract tests) and record the choice in the decision log.
+
+**Playwright user-follow-along mode.** When running Playwright during steps 7–9, run it in a mode the user can watch in real time:
+
+- Prefer `npx playwright test --headed --ui` (or `--debug`) so the user sees the browser drive the flow.
+- Always enable traces (`--trace on`) so the user can replay the run via `npx playwright show-trace` afterward.
+- If the environment is headless and a UI/headed run is impossible, capture videos + traces and surface their paths to the user before claiming verification done.
+
+If a feature genuinely cannot be covered by an e2e/acceptance test, document the reason and the chosen substitute in `implementation-plan.md` (verification matrix) and the decision log — don't silently skip.
+
 ## Workflow
 
 12 steps. Track progress as you go:
@@ -70,12 +91,12 @@ When delegating to subagents, run them in parallel only for **independent, read-
 - [ ] 4. Clarify with user (only if blocking)
 - [ ] 5. Update GitHub issues with clarified scope
 - [ ] 6. Write implementation plan
-- [ ] 7. Implement with XP pair engineering
-- [ ] 8. Verify (user-facing tests first)
-- [ ] 9. Mandatory review loop
+- [ ] 7. Implement with XP pair engineering (commits gated by `./build-sdk.sh`)
+- [ ] 8. Verify (Playwright e2e/acceptance first, with user follow-along)
+- [ ] 9. Mandatory review loop (Playwright walk-through with the user)
 - [ ] 10. Security analysis + pen-testing (if applicable)
 - [ ] 11. Sprint-review demo write-up
-- [ ] 12. Final issue updates and user summary
+- [ ] 12. Pre-PR `./build-full.sh`, final issue updates, user summary
 
 ### 1. Initialize state and logs
 
@@ -120,7 +141,7 @@ When delegating to subagents, run them in parallel only for **independent, read-
 1. Inspect: `README`, `CONTRIBUTING`, `CLAUDE.md`, `AGENTS.md`, architecture docs, package manifests, build files, CI config.
 2. Map relevant modules, boundaries, APIs, data flow, configuration, conventions.
 3. Identify likely files to change.
-4. Capture test framework, test commands, build, lint, typecheck, format commands.
+4. Capture test framework, test commands, build, lint, typecheck, format commands. **Confirm `./build-sdk.sh` and `./build-full.sh` exist at the repo root** — if either is missing, stop and ask the user before proceeding. Note Playwright config (`playwright.config.*`) and existing e2e suites; if Playwright isn't yet installed and the change is user-facing, plan its introduction in step 6.
 5. Identify trust boundaries, sensitive data flows, input surfaces, authn/authz, network boundaries, file handling, dependency risks.
 
 **Output.** Append to `implementation-plan.md`: architecture summary; relevant files/modules; test + CI summary; verification command candidates; security and privacy notes; initial implementation constraints.
@@ -168,8 +189,9 @@ Posting an issue comment is an externally visible action. Before posting, surfac
 - XP pair-engineering plan
 - Parallelization plan (independent slices only)
 - Files likely to change
-- Verification matrix (criterion → test → command)
-- Tests to add/update — user-facing first, then unit
+- Verification matrix (criterion → test → command) — **every acceptance criterion needs an e2e/acceptance test row (Playwright by default for UI flows); justify any criterion that cannot have one**
+- Tests to add/update — Playwright e2e/acceptance first, then integration, then unit
+- Build-gate plan — when `./build-sdk.sh` will run (every commit) and when `./build-full.sh` will run (before opening or updating the PR)
 - Threat-model summary
 - Pen-test scope (if applicable)
 - Rollback plan
@@ -189,18 +211,20 @@ Prefer **vertical slices** that can be demoed end-to-end over horizontal layers.
 
 1. **Driver** implements a small vertical slice (prefer something demoable end-to-end).
 2. **Navigator** reviews direction, acceptance alignment, edge cases, naming, architecture, test coverage.
-3. **test-engineer** adds/updates tests with the change.
+3. **test-engineer** adds/updates tests with the change — Playwright e2e/acceptance for any user-facing slice; integration/unit for non-UI logic.
 4. **security-analyst** reviews the slice if it touches a sensitive surface.
-5. Repeat until the agreed scope is complete.
+5. **Pre-commit gate.** Before each commit, run `./build-sdk.sh`. The commit is only allowed when it exits 0. On failure: diagnose root cause → fix → re-run → log (do not bypass with `--no-verify` or amended commits that skip the gate).
+6. Commit with a focused message that names the slice and the acceptance criterion it advances.
+7. Repeat until the agreed scope is complete.
 
 **Rules.**
 
 - Keep changes focused and minimal.
 - Match repo style.
-- Prefer user-facing tests for acceptance evidence.
-- Add unit tests for edge cases and fast diagnosis.
+- Prefer Playwright e2e/acceptance tests for user-facing acceptance evidence; add unit tests for edge cases and fast diagnosis.
 - No unrelated refactors or broad rewrites.
 - Stop and escalate on unresolved product, architecture, security, or destructive decisions.
+- Never skip the `./build-sdk.sh` gate.
 
 **Logging.** Append progress-log entries at meaningful milestones with `scripts/append-progress.sh`. Record material decisions in the decision log.
 
@@ -210,22 +234,21 @@ Prefer **vertical slices** that can be demoed end-to-end over horizontal layers.
 
 Run, in this priority order, what the repo actually defines:
 
-1. User-facing acceptance tests
-2. End-to-end tests
-3. Integration tests
-4. API contract tests
-5. CLI behavior tests
-6. UI behavior tests
-7. Unit tests
-8. Type check
-9. Lint
-10. Build
-11. Format
-12. Dependency / security audit
-13. Manual reproduction for user-visible behavior
-14. Regression checks around touched areas
+1. **Playwright e2e / acceptance tests** — run with `--headed --ui` (or `--debug`) and `--trace on` so the user can follow along live and replay traces. Capture trace + video paths in `review-report.md`.
+2. Other end-to-end / integration tests
+3. API contract tests
+4. CLI behavior tests
+5. UI behavior tests not covered by Playwright
+6. Unit tests
+7. Type check
+8. Lint
+9. Build
+10. Format
+11. Dependency / security audit
+12. Manual reproduction for user-visible behavior
+13. Regression checks around touched areas
 
-Every acceptance criterion must have a verification path.
+Every acceptance criterion must have a verification path, and that path should be a Playwright (or equivalent e2e) test unless the plan justifies an exception.
 
 **On failure.** Diagnose root cause → fix if in scope → re-run → record in progress log.
 
@@ -250,6 +273,8 @@ Run **at least one** formal review pass after implementation and initial verific
 7. Re-run relevant verification after fixes.
 
 **Required perspectives.** Correctness; user-facing behavior; regression risk; test coverage; error handling; edge cases; maintainability; security; privacy; performance (where relevant); accessibility (where relevant).
+
+**User walk-through with Playwright.** As part of the review, drive the changed flows through Playwright in headed/UI mode so the user can follow along live. Save trace + video; reference both in `review-report.md`. If headed mode is unavailable, capture and surface the trace artifacts before signing off the review.
 
 **Output.** `review-report.md` is a current-state document — archive before rewriting (`scripts/archive-current-state.sh`).
 
@@ -293,27 +318,31 @@ Run **at least one** formal review pass after implementation and initial verific
 
 **Output.** `sprint-review-demo.md` — current-state document, archive before rewriting.
 
-### 12. Final issue and log updates
+### 12. Pre-PR gate, final issue and log updates
 
 **Owners.** orchestrator, product-owner, demo-lead.
 
-1. Append final entries to the progress log: status, changed files, verification results, review results, security results, residual risks.
-2. Append final material decisions to the decision log.
-3. Update GitHub issues with implementation summary, verification evidence, security notes, and demo notes (per-issue confirmation, as in step 5).
-4. **Do not close issues** unless the user explicitly asked or the repo's convention clearly indicates closure.
-5. Produce the final user-facing summary.
+1. **Pre-PR gate.** Before opening or updating any pull request, run `./build-full.sh` from the repo root. It must exit 0. If it fails, do not open the PR; diagnose, fix, re-run, log. Record the successful command + result + timestamp in `review-report.md` and the progress log.
+2. Open or update the PR (as a draft unless the user has authorized otherwise) only after step 1 passes. Reference the artifact files in the PR body.
+3. Append final entries to the progress log: status, changed files, `build-sdk.sh` / `build-full.sh` results, verification results, review results, security results, residual risks.
+4. Append final material decisions to the decision log.
+5. Update GitHub issues with implementation summary, verification evidence, security notes, and demo notes (per-issue confirmation, as in step 5).
+6. **Do not close issues** unless the user explicitly asked or the repo's convention clearly indicates closure.
+7. Produce the final user-facing summary.
 
 **Final summary must list.**
 
 - Issues addressed
 - Implementation summary
 - Files changed
-- Verification commands + results
-- User-facing tests added/updated
-- Review findings + fixes
+- `build-sdk.sh` per-commit results (pass/fail + count) and final `build-full.sh` result
+- Verification commands + results (Playwright trace/video paths included)
+- User-facing / Playwright e2e tests added/updated (one per acceptance criterion, or a justified exception)
+- Review findings + fixes (link to the recorded Playwright walk-through)
 - Security analysis + pen-test summary
 - Residual risks / follow-ups
 - Whether issues were updated
+- PR URL (draft unless otherwise authorized)
 - Locations of all six artifact files
 
 ## Operating principles
@@ -327,6 +356,8 @@ These trump local convenience. If you find yourself violating one, stop and esca
 - **Security is not optional** for the surfaces listed in step 10.
 - **Traceability.** Every material decision ties back to an issue requirement, repo constraint, user clarification, or test result — captured in the decision log.
 - **Autonomy with guardrails.** Proceed when the next step is clear and low-risk. Ask only on decisions that materially affect product, scope, compatibility, security, data migration, public APIs, or irreversible actions.
+- **Build gates are non-negotiable.** `./build-sdk.sh` before every commit; `./build-full.sh` before every PR open/update. No `--no-verify`, no skipped hooks, no PRs opened on a red `build-full.sh`.
+- **E2E coverage by default.** Every acceptance criterion gets a Playwright (or equivalent) e2e/acceptance test unless the plan documents a specific reason it can't.
 - **Never** commit, push, force-push, deploy, close issues, or take other destructive/external actions without explicit user authorization. A single approval covers a single action — not future ones.
 
 ## Gotchas
@@ -350,12 +381,13 @@ Work is not done until:
 4. Plan maps work → acceptance criteria → demo scenarios.
 5. GitHub issues were updated (or a local update proposal exists).
 6. Implementation is complete for the agreed scope.
-7. User-facing tests exist for each acceptance criterion (or the gap is justified).
-8. Verification was run; results are recorded.
-9. At least one review loop ran; blockers and highs are fixed.
-10. Security review ran for sensitive surfaces; pen-tests ran when applicable.
-11. `sprint-review-demo.md` exists and leads with user value.
-12. Final user summary lists changes, verification, review, security, residual risks, and artifact locations.
+7. Each acceptance criterion has a Playwright (or equivalent) e2e/acceptance test, or the plan documents why one isn't feasible.
+8. `./build-sdk.sh` passed for every commit on the branch; `./build-full.sh` passed before the PR was opened/updated.
+9. Verification was run; results are recorded (including Playwright trace + video paths).
+10. At least one review loop ran (with a Playwright walk-through where applicable); blockers and highs are fixed.
+11. Security review ran for sensitive surfaces; pen-tests ran when applicable.
+12. `sprint-review-demo.md` exists and leads with user value.
+13. Final user summary lists changes, build-gate results, verification, review, security, residual risks, PR URL, and artifact locations.
 
 ## Failure handling
 

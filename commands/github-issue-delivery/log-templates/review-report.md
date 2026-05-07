@@ -8,9 +8,21 @@
 
 ## Verification evidence
 
-| Acceptance criterion | Verification | Result |
-|---|---|---|
-|  |  |  |
+| Acceptance criterion | Verification | Result | Playwright trace / video |
+|---|---|---|---|
+|  |  |  |  |
+
+## Build-gate evidence
+
+- `./build-sdk.sh` — ran on every commit (see progress log): pass/fail summary
+- `./build-full.sh` — final pre-PR run: command, timestamp, exit code
+
+## Playwright walk-through
+
+- Command(s) used (headed / UI mode):
+- Trace path(s):
+- Video path(s):
+- Replay command:
 
 ## Findings
 

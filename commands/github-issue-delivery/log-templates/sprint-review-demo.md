@@ -27,9 +27,16 @@
 
 ## Tests + verification
 
-- Tests added/updated:
+- Playwright e2e/acceptance tests added/updated (one per AC where possible):
+- Other tests added/updated:
 - Commands run:
 - Results:
+- Trace / video paths (`npx playwright show-trace ...`):
+
+## Build gates
+
+- `./build-sdk.sh` — per-commit pass/fail summary:
+- `./build-full.sh` — final pre-PR run (command, exit code, timestamp):
 
 ## Review-loop summary
 
